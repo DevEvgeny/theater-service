@@ -1,4 +1,6 @@
+from django.contrib.auth.models import AbstractUser
 from django.db import models
+from theater_service import settings
 
 
 
@@ -47,7 +49,7 @@ class Performance(models.Model):
 
 class Reservation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
-    # user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reservations")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="reservations")
 
     def __str__(self):
         return f"Reservation {self.id} by {self.user} created_at {self.created_at}"
