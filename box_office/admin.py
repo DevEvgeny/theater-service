@@ -1,3 +1,5 @@
 from django.contrib import admin
+from box_office.models import Play
 
-# Register your models here.
+
+admin.site.register(Play)
