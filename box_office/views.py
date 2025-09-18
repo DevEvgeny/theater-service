@@ -19,7 +19,7 @@ from box_office.serializers import (
 class ActorViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
-    GenericViewSet
+    GenericViewSet,
 ):
     queryset = Actor.objects.all()
     serializer_class = ActorSerializer

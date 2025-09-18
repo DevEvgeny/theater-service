@@ -8,7 +8,7 @@ from box_office.models import (
 )
 
 
-class ActorSerializer(serializers.Serializer):
+class ActorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Actor
         fields = (
@@ -18,7 +18,7 @@ class ActorSerializer(serializers.Serializer):
         )
 
 
-class GenreSerializer(serializers.Serializer):
+class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
         fields = (
@@ -27,7 +27,7 @@ class GenreSerializer(serializers.Serializer):
         )
 
 
-class TheatreHallSerializer(serializers.Serializer):
+class TheatreHallSerializer(serializers.ModelSerializer):
     class Meta:
         model = TheatreHall
         fields = (
@@ -40,7 +40,7 @@ class TheatreHallSerializer(serializers.Serializer):
 
 
 
-class PlaySerializer(serializers.Serializer):
+class PlaySerializer(serializers.ModelSerializer):
     class Meta:
         model = Play
         fields = (
@@ -79,7 +79,7 @@ class PlayDetailSerializer(PlayListSerializer):
         )
 
 
-class PerformanceSerializer(serializers.Serializer):
+class PerformanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Performance
         fields = (
@@ -101,7 +101,7 @@ class PerformanceListSerializer(PerformanceSerializer):
         )
 
 
-class ReservationSerializer(serializers.Serializer):
+class ReservationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reservation
         fields = (
