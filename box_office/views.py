@@ -13,7 +13,9 @@ from box_office.models import (
     Reservation,
     Ticket)
 from box_office.serializers import (
-    ActorSerializer)
+    ActorSerializer,
+    GenreSerializer, TheatreHallSerializer
+)
 
 
 class ActorViewSet(
@@ -23,3 +25,21 @@ class ActorViewSet(
 ):
     queryset = Actor.objects.all()
     serializer_class = ActorSerializer
+
+
+class GenreViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    GenericViewSet
+):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+
+
+class TheatreHallViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    GenericViewSet
+):
+    queryset = TheatreHall.objects.all()
+    serializer_class = TheatreHallSerializer
