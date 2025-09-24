@@ -5,7 +5,7 @@ from box_office.models import (
     Play,
     Actor,
     Genre,
-    TheatreHall, Performance, Reservation
+    TheatreHall, Performance, Reservation, Ticket
 )
 
 
@@ -115,5 +115,18 @@ class ReservationSerializer(serializers.ModelSerializer):
         model = Reservation
         fields = (
             "id",
-            "created_at"
+            "created_at",
+            "user"
+        )
+
+
+class TicketSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ticket
+        fields = (
+            "id",
+            "row",
+            "seat",
+            "performance",
+            "tickets"
         )
