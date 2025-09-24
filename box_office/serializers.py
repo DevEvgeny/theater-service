@@ -1,3 +1,4 @@
+from django.template.defaultfilters import slugify
 from rest_framework import serializers
 
 from box_office.models import (
@@ -41,6 +42,7 @@ class TheatreHallSerializer(serializers.ModelSerializer):
 
 
 class PlaySerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Play
         fields = (
@@ -53,6 +55,12 @@ class PlaySerializer(serializers.ModelSerializer):
 
 
 class PlayListSerializer(PlaySerializer):
+    genres = serializers.SlugRelatedField(
+        many=True, read_only=True, slug_field="name"
+    )
+    actors = serializers.SlugRelatedField(
+        many=True, read_only=True, slug_field="full_name"
+    )
     class Meta:
         model = Play
         fields = (
@@ -64,10 +72,9 @@ class PlayListSerializer(PlaySerializer):
         )
 
 
-class PlayDetailSerializer(PlayListSerializer):
+class PlayDetailSerializer(PlaySerializer):
     genres = GenreSerializer(many=True, read_only=True)
     actors = ActorSerializer(many=True, read_only=True)
-
     class Meta:
         model = Play
         fields = (
@@ -91,12 +98,14 @@ class PerformanceSerializer(serializers.ModelSerializer):
 
 
 class PerformanceListSerializer(PerformanceSerializer):
+    play_title = serializers.CharField(source="play.title", read_only=True)
+    theatre_hall_name = serializers.CharField(source="theatre_hall.name", read_only=True)
     class Meta:
         model = Performance
         fields = (
             "id",
-            "play",
-            "theatre_hall",
+            "play_title",
+            "theatre_hall_name",
             "show_time",
         )
 

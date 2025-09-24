@@ -14,7 +14,8 @@ from box_office.models import (
     Ticket)
 from box_office.serializers import (
     ActorSerializer,
-    GenreSerializer, TheatreHallSerializer
+    GenreSerializer, TheatreHallSerializer, PerformanceSerializer, PlaySerializer, PlayListSerializer,
+    PlayDetailSerializer, ReservationSerializer, PerformanceListSerializer
 )
 
 
@@ -43,3 +44,52 @@ class TheatreHallViewSet(
 ):
     queryset = TheatreHall.objects.all()
     serializer_class = TheatreHallSerializer
+
+
+class PlayViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
+):
+    queryset = Play.objects.all()
+    def get_serializer_class(self):
+        if self.action == "list":
+            return PlayListSerializer
+
+        if self.action == "retrieve":
+            return PlayDetailSerializer
+        return PlaySerializer
+
+    def get_queryset(self):
+        queryset = self.queryset
+        if self.action == "list":
+            return queryset.prefetch_related("actors", "genres")
+
+        return queryset
+
+
+class PerformanceViewSet(
+    viewsets.ModelViewSet
+):
+    queryset = Performance.objects.all()
+    serializer_class = PerformanceSerializer
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return PerformanceListSerializer
+        return PerformanceSerializer
+
+    def get_queryset(self):
+        queryset = self.queryset
+        if self.action == "list":
+            return queryset.select_related()
+
+
+class ReservationViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    GenericViewSet,
+):
+    queryset = Reservation.objects.all()
+    serializer_class = ReservationSerializer
