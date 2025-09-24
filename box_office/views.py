@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.template.defaultfilters import title
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 from rest_framework import viewsets, mixins, status
@@ -52,7 +53,38 @@ class PlayViewSet(
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
 ):
-    queryset = Play.objects.all()
+    queryset = Play.objects.prefetch_related("actors", "genres")
+
+    @staticmethod
+    def _params_to_ints(qs):
+        """Converts a list of string IDs to a list of integers"""
+        return [int(str_id) for str_id in qs.split(",")]
+
+    def get_queryset(self):
+        title = self.request.query_params.get("title")
+        genres = self.request.query_params.get("genres")
+        actors = self.request.query_params.get("actors")
+
+        queryset = self.queryset
+
+        if title:
+            queryset = queryset.filter(title__icontains=title)
+
+        if genres:
+            genres_ids = self._params_to_ints(genres)
+            queryset = queryset.filter(genres__id__in=genres_ids)
+
+        if actors:
+            actors_ids = self._params_to_ints(actors)
+            queryset = queryset.filter(actors__id__in=actors_ids)
+
+        return queryset.distinct()
+
+        if self.action == "list":
+            return queryset.prefetch_related("actors", "genres")
+
+        return queryset
+
     def get_serializer_class(self):
         if self.action == "list":
             return PlayListSerializer
@@ -61,12 +93,7 @@ class PlayViewSet(
             return PlayDetailSerializer
         return PlaySerializer
 
-    def get_queryset(self):
-        queryset = self.queryset
-        if self.action == "list":
-            return queryset.prefetch_related("actors", "genres")
 
-        return queryset
 
 
 class PerformanceViewSet(

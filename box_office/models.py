@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from rest_framework.exceptions import ValidationError
+
 from theater_service import settings
 
 
@@ -69,9 +71,6 @@ class Ticket(models.Model):
     performance = models.ForeignKey(Performance, on_delete=models.CASCADE, related_name="tickets")
     reservation = models.ForeignKey(Reservation, on_delete=models.CASCADE, related_name="tickets")
 
-    class Meta:
-        unique_together = ("row", "seat", "performance")
-
     def __str__(self):
         return f"{str(self.performance)} (row: {self.row}, seat: {self.seat})"
 
@@ -91,3 +90,27 @@ class Ticket(models.Model):
                                           f"(1, {count_attrs})"
                     }
                 )
+
+    def clean(self):
+        Ticket.validate_ticket(
+            self.row,
+            self.seat,
+            self.performance.theatre_hall,
+            ValidationError,
+        )
+
+    def save(
+        self,
+        *args,
+        force_insert=False,
+        force_update=False,
+        using=None,
+        update_fields=None,
+    ):
+        self.full_clean()
+        return super(Ticket, self).save(
+            force_insert, force_update, using, update_fields
+        )
+
+    class Meta:
+        unique_together = ("row", "seat", "performance")
