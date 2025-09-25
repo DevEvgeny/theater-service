@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from django.template.defaultfilters import title
+from django.db.models import F, Count
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 from rest_framework import viewsets, mixins, status
@@ -16,7 +16,7 @@ from box_office.models import (
 from box_office.serializers import (
     ActorSerializer,
     GenreSerializer, TheatreHallSerializer, PerformanceSerializer, PlaySerializer, PlayListSerializer,
-    PlayDetailSerializer, ReservationSerializer, PerformanceListSerializer
+    PlayDetailSerializer, ReservationSerializer, PerformanceListSerializer, PerformanceDetailSerializer
 )
 
 
@@ -80,11 +80,6 @@ class PlayViewSet(
 
         return queryset.distinct()
 
-        if self.action == "list":
-            return queryset.prefetch_related("actors", "genres")
-
-        return queryset
-
     def get_serializer_class(self):
         if self.action == "list":
             return PlayListSerializer
@@ -99,18 +94,30 @@ class PlayViewSet(
 class PerformanceViewSet(
     viewsets.ModelViewSet
 ):
-    queryset = Performance.objects.all()
+    queryset = (
+        Performance.objects.all()
+        .select_related("play", "theatre_hall")
+        .annotate(
+            tickets_available=(
+                F("theatre_hall__rows") * F("theatre_hall__seats_in_row")
+                - Count("tickets")
+            )
+        )
+    )
     serializer_class = PerformanceSerializer
 
     def get_serializer_class(self):
         if self.action == "list":
             return PerformanceListSerializer
+        if self.action == "retrieve":
+            return PerformanceDetailSerializer
         return PerformanceSerializer
 
     def get_queryset(self):
         queryset = self.queryset
         if self.action == "list":
             return queryset.select_related()
+        return queryset
 
 
 class ReservationViewSet(
