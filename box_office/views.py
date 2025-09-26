@@ -16,7 +16,8 @@ from box_office.models import (
 from box_office.serializers import (
     ActorSerializer,
     GenreSerializer, TheatreHallSerializer, PerformanceSerializer, PlaySerializer, PlayListSerializer,
-    PlayDetailSerializer, ReservationSerializer, PerformanceListSerializer, PerformanceDetailSerializer
+    PlayDetailSerializer, ReservationSerializer, PerformanceListSerializer, PerformanceDetailSerializer,
+    ReservationListSerializer
 )
 
 
@@ -128,8 +129,19 @@ class ReservationViewSet(
     queryset = Reservation.objects.all()
     serializer_class = ReservationSerializer
 
+    def get_serializer_class(self):
+        if self.action == "list":
+            return ReservationListSerializer
+        return ReservationSerializer
+
     def get_queryset(self):
-        return Reservation.objects.filter(user=self.request.user)
+        queryset = self.queryset.filter(user=self.request.user)
+
+        if self.action == "list":
+            queryset = queryset.prefetch_related(
+                "tickets__performance__play",
+                "tickets__performance__theatre_hall")
+        return queryset
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

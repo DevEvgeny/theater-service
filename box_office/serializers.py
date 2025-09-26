@@ -119,7 +119,6 @@ class PerformanceListSerializer(PerformanceSerializer):
 
 
 class TicketSerializer(serializers.ModelSerializer):
-    performance = serializers.CharField(source="performance.play", read_only=True)
 
     def validate(self, attrs):
         data = super(TicketSerializer, self).validate(attrs=attrs)
@@ -138,6 +137,10 @@ class TicketSerializer(serializers.ModelSerializer):
             "seat",
             "performance",
         )
+
+
+class TicketListSerializer(TicketSerializer):
+    performance = PerformanceListSerializer(many=False, read_only=True)
 
 
 class TicketSeatsSerializer(TicketSerializer):
@@ -184,3 +187,8 @@ class ReservationSerializer(serializers.ModelSerializer):
             for ticket_data in tickets_data:
                 Ticket.objects.create(reservation=reservation, **ticket_data)
             return reservation
+
+
+class ReservationListSerializer(ReservationSerializer):
+    tickets = TicketListSerializer(many=True, read_only=True)
+
