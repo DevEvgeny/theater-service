@@ -13,10 +13,19 @@ from box_office.models import (
     Performance,
     Reservation,
     Ticket)
+from box_office.permissions import IsAdminOrIfAuthenticatedReadOnly
+
 from box_office.serializers import (
     ActorSerializer,
-    GenreSerializer, TheatreHallSerializer, PerformanceSerializer, PlaySerializer, PlayListSerializer,
-    PlayDetailSerializer, ReservationSerializer, PerformanceListSerializer, PerformanceDetailSerializer,
+    GenreSerializer,
+    TheatreHallSerializer,
+    PerformanceSerializer,
+    PlaySerializer,
+    PlayListSerializer,
+    PlayDetailSerializer,
+    ReservationSerializer,
+    PerformanceListSerializer,
+    PerformanceDetailSerializer,
     ReservationListSerializer
 )
 
@@ -28,6 +37,7 @@ class ActorViewSet(
 ):
     queryset = Actor.objects.all()
     serializer_class = ActorSerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
 class GenreViewSet(
@@ -37,6 +47,7 @@ class GenreViewSet(
 ):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
 class TheatreHallViewSet(
@@ -46,7 +57,7 @@ class TheatreHallViewSet(
 ):
     queryset = TheatreHall.objects.all()
     serializer_class = TheatreHallSerializer
-
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 class PlayViewSet(
     mixins.ListModelMixin,
@@ -55,6 +66,7 @@ class PlayViewSet(
     viewsets.GenericViewSet,
 ):
     queryset = Play.objects.prefetch_related("actors", "genres")
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     @staticmethod
     def _params_to_ints(qs):
@@ -106,6 +118,7 @@ class PerformanceViewSet(
         )
     )
     serializer_class = PerformanceSerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -128,6 +141,7 @@ class ReservationViewSet(
 ):
     queryset = Reservation.objects.all()
     serializer_class = ReservationSerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     def get_serializer_class(self):
         if self.action == "list":
